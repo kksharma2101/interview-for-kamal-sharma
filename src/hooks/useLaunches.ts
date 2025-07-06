@@ -60,7 +60,7 @@ const useLaunches = () => {
             }
 
             // Fetch launches with pagination
-            const response = await fetch(`https://api.spacexdata.com/v5/launches/query`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SPACEX_API}/query`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -74,8 +74,7 @@ const useLaunches = () => {
             });
 
             const { docs: launches, totalPages: total } = await response.json();
-            // console.log(launches)
-            // console.log(error)
+
 
             // Fetch rockets and launchpads in parallel
             const rocketIds = [...new Set(launches.map((l: Launch) => l.rocket))];

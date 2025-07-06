@@ -30,7 +30,7 @@ const LaunchDetail: React.FC<LaunchDetailProps> = ({ launchId, children }) => {
 
         // Fetch launch data
         const launchRes = await fetch(
-          `https://api.spacexdata.com/v5/launches/${launchId}`
+          `${process.env.NEXT_PUBLIC_SPACEX_API}/${launchId}`
         );
         const launch: Launch = await launchRes.json();
 
