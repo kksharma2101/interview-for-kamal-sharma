@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       'farm4.staticflickr.com',
       'farm5.staticflickr.com',
       'live.staticflickr.com',
+      'images2.imgbox.com',
     ],
   },
 };

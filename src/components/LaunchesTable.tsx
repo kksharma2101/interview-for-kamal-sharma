@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import useLaunches from "../hooks/useLaunches";
 import { format, parseISO } from "date-fns";
 import Image from "next/image";
@@ -9,19 +9,12 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  X,
 } from "lucide-react";
-import axios from "axios";
 import LaunchDetail from "./LaunchDetails";
-
-const tableHeadings = [
-  { id: 1, name: "No:" },
-  { id: 2, name: "Launched (UTC)" },
-  { id: 3, name: "Location" },
-  { id: 4, name: "Mission" },
-  { id: 5, name: "Orbit" },
-  { id: 6, name: "Launch Status" },
-  { id: 7, name: "Rocket" },
-];
+import CategoryFilter from "./CategoryFilter";
+import { LaunchCategory, tableHeadings } from "@/types/spacex";
+import DateRangeFilter from "./DateRangeFilter";
 
 const LaunchesTable: React.FC = () => {
   const {
@@ -34,62 +27,108 @@ const LaunchesTable: React.FC = () => {
     prevPage,
     hasNextPage,
     hasPrevPage,
+    filter,
+    setFilter,
+    category,
+    setCategory,
   } = useLaunches();
 
   const [launchId, setLaunchId] = useState<string>();
   const [active, setActive] = useState<Boolean>(false);
-  // console.log(launchId);
+  const [activeDate, setActiveDate] = useState<Boolean>(false);
 
-  if (error)
-    return <div className="text-center text-red-500 py-8">Error: {error}</div>;
-  if (!data.length)
-    return <div className="text-center py-8">No launch data available</div>;
+  const paginationData = [
+    { label: 1, id: "first-page" },
+    { label: currentPage, id: "current-page" },
+    { label: "...", id: "dotted" },
+    { label: totalPages, id: "total-page" },
+  ];
 
   return (
     <>
-      <div className="max-w-[1440px] bg-white">
-        {/* Popup components  */}
-        <div
-          className={`absolute mx-auto z-50 ${!active && "hidden"}`}
-        >
-          {/* {active && <LaunchDetail launchId={launchId} />} */}
+      {/* Popup components  */}
+      <div
+        className={`absolute w-full px-2 lg:px-0 top-[133px] flex items-center justify-center ${
+          !active && "hidden"
+        }`}
+      >
+        {active && (
+          <LaunchDetail launchId={launchId}>
+            <X
+              width={20}
+              height={20}
+              color="#4B5563"
+              className="absolute right-8 top-3 cursor-pointer"
+              onClick={() => setActive(false)}
+            />
+          </LaunchDetail>
+        )}
+      </div>
+
+      {/* date filter */}
+      {activeDate && (
+        <div className="m-auto absolute w-full px-2 lg:px-0 top-[370px] flex items-center justify-center">
+          <DateRangeFilter
+            onSelect={setFilter}
+            currentSelection={filter as any}
+          >
+            <X
+              width={20}
+              height={20}
+              color="#4B5563"
+              className="absolute right-1 top-0 cursor-pointer"
+              onClick={() => setActiveDate(false)}
+            />
+          </DateRangeFilter>
+        </div>
+      )}
+
+      <div
+        className={`max-w-[1440px] ${
+          active || activeDate ? "bg-[#E4E4E7] opacity-100" : "bg-white"
+        }`}
+      >
+        {/* Logo container */}
+        <div className="w-full shadow shadow-[#0000001A] h-[72px] flex items-center justify-center">
+          <Image
+            width={260}
+            height={32}
+            src="spacex-logo.svg"
+            alt="logo"
+            priority
+          />
         </div>
 
         {/* main container */}
-        <div
-          className={`max-w-[952px] m-auto px-2 lg:px-0 ${
-            active && "z-0 opacity-40"
-          }`}
-        >
+        <div className={`max-w-[952px] m-auto px-2 lg:px-0 ${active && "z-0"}`}>
           {/* Filter data by the date and others */}
           <div className="w-full mt-12 flex justify-between items-center ">
-            <div className="flex justify-center items-center gap-2 cursor-pointer">
+            <div
+              onClick={() => setActiveDate(true)}
+              className="flex justify-center items-center gap-2 cursor-pointer"
+            >
               <CalendarIcon width={16} height={16} color="#4B5563" />
 
               <span className="font-medium text-base leading-4 -tracking-normal text-[#4B5563]">
-                Past 6 Months
+                {filter}
               </span>
 
               <ChevronDown width={16} height={16} color="#4B5563" />
             </div>
 
-            <div className="flex justify-center items-center gap-2 cursor-pointer">
-              <Image
-                src="/launch-funnel-icon.svg"
-                alt="funnel"
-                width={12}
-                height={12}
-                priority
-              />
-              <span className="font-medium text-base leading-4 -tracking-normal text-[#4B5563]">
-                All Launches
-              </span>
-              <ChevronDown width={16} height={16} color="#4B5563" />
-            </div>
+            {/* Category filter */}
+            <CategoryFilter
+              onSelect={setCategory}
+              currentSelection={category as LaunchCategory}
+            />
           </div>
 
           {/* Launches Table data */}
-          <div className="overflow-x-auto rounded-md bg-white border border-[#E4E4E7] shadow-sm mt-16">
+          <div
+            className={`overflow-x-auto rounded-md border border-[#E4E4E7] shadow-sm mt-16 ${
+              active || activeDate ? "bg-[#E4E4E7]" : "bg-white"
+            }`}
+          >
             <table className="w-full text-nowrap px-6">
               <thead className="bg-[#F4F5F7] h-10">
                 <tr>
@@ -104,21 +143,27 @@ const LaunchesTable: React.FC = () => {
                 </tr>
               </thead>
 
-              <tbody className="bg-white">
-                {loading ? (
+              <tbody className="">
+                {loading || !data.length ? (
                   <tr>
                     <td colSpan={7}>
                       <div
                         className={`flex justify-center items-center py-16 ${
-                          loading && "h-[634px]"
+                          (loading || !data.length) && "h-[634px]"
                         }`}
                       >
-                        <Image
-                          src="Loader.svg"
-                          alt="loader"
-                          width={200}
-                          height={200}
-                        />
+                        {loading ? (
+                          <Image
+                            src="Loader.svg"
+                            alt="loader"
+                            width={200}
+                            height={200}
+                          />
+                        ) : (
+                          <p className="text-sm font-medium text-[#374151]">
+                            No results found for the specified filter
+                          </p>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -198,18 +243,14 @@ const LaunchesTable: React.FC = () => {
                 <ChevronLeft width={18} height={18} color="#4B5563" />
               </button>
 
-              <span className="w-10 h-full flex justify-center items-center border-l border-[#E4E4E7] text-[#4B5563] text-xs font-medium leading-4">
-                1
-              </span>
-              <span className="w-10 h-full flex justify-center items-center border-l border-[#E4E4E7] text-[#4B5563] text-xs font-medium leading-4">
-                {currentPage}
-              </span>
-              <span className="w-10 h-full flex justify-center items-center border-l border-[#E4E4E7] text-[#4B5563] text-xs font-medium leading-4">
-                ...
-              </span>
-              <span className="w-10 h-full flex justify-center items-center border-l border-[#E4E4E7] text-[#4B5563] text-xs font-medium leading-4">
-                {totalPages}
-              </span>
+              {paginationData.map((val) => (
+                <span
+                  className="w-10 h-full flex justify-center items-center border-l border-[#E4E4E7] text-[#4B5563] text-xs font-medium leading-4"
+                  key={val.id}
+                >
+                  {val.label}
+                </span>
+              ))}
 
               <button
                 onClick={nextPage}

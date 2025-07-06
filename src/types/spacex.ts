@@ -1,4 +1,3 @@
-// types/spacex.ts
 export interface Launch {
     id: string;
     flight_number: number;
@@ -9,7 +8,6 @@ export interface Launch {
     details: string | null;
     rocket: string;
     launchpad: string;
-    // payloads: string[];
     payloads: {
         orbit: string;
         type: string;
@@ -75,34 +73,38 @@ export interface Payload {
     mass_kg: number;
     mass_lbs: number;
 }
-//
-// export interface Launch {
-//     id: string;
-//     name: string;
-//     date_utc: string;
-//     success: boolean | null;
-//     upcoming: boolean;
-//     rocket: string;
-//     launchpad: string;
-//     payloads: {
-//         orbit: string;
-//         type: string;
-//     }[];
-//     details: string | null;
-//     links: {
-//         patch: {
-//             small: string;
-//         };
-//     };
-// }
 
-// export interface Rocket {
-//     id: string;
-//     name: string;
-// }
+export interface FilterOption {
+    label: string;
+    value: string;
+    dateRange: {
+        start: string;
+        end: string;
+    };
+}
 
-// export interface Launchpad {
-//     id: string;
-//     name: string;
-//     locality: string;
-// }
+export interface LaunchQuery {
+    upcoming?: boolean;
+    success?: boolean | null;
+    date_utc?: {
+        $gte: string;
+        $lte: string;
+    };
+}
+
+export interface PopupProps {
+    onSelect: (option: LaunchCategory) => void;
+    currentSelection: LaunchCategory;
+}
+
+export type LaunchCategory = 'all' | 'upcoming' | 'successful' | 'failed';
+
+export const tableHeadings = [
+    { id: 1, name: "No:" },
+    { id: 2, name: "Launched (UTC)" },
+    { id: 3, name: "Location" },
+    { id: 4, name: "Mission" },
+    { id: 5, name: "Orbit" },
+    { id: 6, name: "Launch Status" },
+    { id: 7, name: "Rocket" },
+];
