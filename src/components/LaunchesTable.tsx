@@ -13,14 +13,14 @@ import {
 } from "lucide-react";
 import LaunchDetail from "./LaunchDetails";
 import CategoryFilter from "./CategoryFilter";
-import { LaunchCategory, tableHeadings } from "@/types/spacex";
+import { LaunchCategory, tableHeadings, TimeRangeOption } from "@/types/spacex";
 import DateRangeFilter from "./DateRangeFilter";
 
 const LaunchesTable: React.FC = () => {
   const {
     data,
     loading,
-    error,
+    // error,
     currentPage,
     totalPages,
     nextPage,
@@ -34,8 +34,8 @@ const LaunchesTable: React.FC = () => {
   } = useLaunches();
 
   const [launchId, setLaunchId] = useState<string>();
-  const [active, setActive] = useState<Boolean>(false);
-  const [activeDate, setActiveDate] = useState<Boolean>(false);
+  const [active, setActive] = useState<boolean>(false);
+  const [activeDate, setActiveDate] = useState<boolean>(false);
 
   const paginationData = [
     { label: 1, id: "first-page" },
@@ -46,48 +46,44 @@ const LaunchesTable: React.FC = () => {
 
   return (
     <>
-      {/* Popup components  */}
       <div
-        className={`absolute w-full px-2 lg:px-0 top-[133px] flex items-center justify-center ${
-          !active && "hidden"
+        className={`max-w-[1440px] bg-white ${
+          active || activeDate ? " opacity-70" : ""
         }`}
       >
+        {/* Popup details components */}
         {active && (
-          <LaunchDetail launchId={launchId}>
-            <X
-              width={20}
-              height={20}
-              color="#4B5563"
-              className="absolute right-8 top-3 cursor-pointer"
-              onClick={() => setActive(false)}
-            />
-          </LaunchDetail>
+          <div className="absolute w-full px-2 lg:px-0 top-[133px] flex items-center justify-center">
+            <LaunchDetail launchId={launchId}>
+              <X
+                width={20}
+                height={20}
+                color="#4B5563"
+                className="absolute right-8 top-3 cursor-pointer"
+                onClick={() => setActive(false)}
+              />
+            </LaunchDetail>
+          </div>
         )}
-      </div>
 
-      {/* date filter */}
-      {activeDate && (
-        <div className="m-auto absolute w-full px-2 lg:px-0 top-[370px] flex items-center justify-center">
-          <DateRangeFilter
-            onSelect={setFilter}
-            currentSelection={filter as any}
-          >
-            <X
-              width={20}
-              height={20}
-              color="#4B5563"
-              className="absolute right-1 top-0 cursor-pointer"
-              onClick={() => setActiveDate(false)}
-            />
-          </DateRangeFilter>
-        </div>
-      )}
+        {/* date filter components */}
+        {activeDate && (
+          <div className="m-auto absolute w-full px-2 lg:px-0 top-[370px] flex items-center justify-center">
+            <DateRangeFilter
+              onSelect={setFilter}
+              currentSelection={filter as TimeRangeOption}
+            >
+              <X
+                width={20}
+                height={20}
+                color="#4B5563"
+                className="absolute right-1 top-0 cursor-pointer"
+                onClick={() => setActiveDate(false)}
+              />
+            </DateRangeFilter>
+          </div>
+        )}
 
-      <div
-        className={`max-w-[1440px] ${
-          active || activeDate ? "bg-[#E4E4E7] opacity-100" : "bg-white"
-        }`}
-      >
         {/* Logo container */}
         <div className="w-full shadow shadow-[#0000001A] h-[72px] flex items-center justify-center">
           <Image
@@ -100,7 +96,11 @@ const LaunchesTable: React.FC = () => {
         </div>
 
         {/* main container */}
-        <div className={`max-w-[952px] m-auto px-2 lg:px-0 ${active && "z-0"}`}>
+        <div
+          className={`max-w-[952px] h-[676px] m-auto px-2 lg:px-0 ${
+            active && "z-0"
+          }`}
+        >
           {/* Filter data by the date and others */}
           <div className="w-full mt-12 flex justify-between items-center ">
             <div
@@ -129,7 +129,7 @@ const LaunchesTable: React.FC = () => {
               active || activeDate ? "bg-[#E4E4E7]" : "bg-white"
             }`}
           >
-            <table className="w-full text-nowrap px-6">
+            <table className="w-full h-full text-nowrap px-6">
               <thead className="bg-[#F4F5F7] h-10">
                 <tr>
                   {tableHeadings.map((item) => (
@@ -148,7 +148,7 @@ const LaunchesTable: React.FC = () => {
                   <tr>
                     <td colSpan={7}>
                       <div
-                        className={`flex justify-center items-center py-16 ${
+                        className={`flex justify-center items-center ${
                           (loading || !data.length) && "h-[634px]"
                         }`}
                       >
@@ -171,7 +171,8 @@ const LaunchesTable: React.FC = () => {
                   data.map((launch, index) => (
                     <tr
                       onClick={() => {
-                        setLaunchId(launch?.id), setActive(true);
+                        setLaunchId(launch?.id);
+                        setActive(true);
                       }}
                       key={launch.id}
                       className="hover:bg-gray-50 text-[#1F2937] font-normal leading-3 text-xs h-[53px] cursor-pointer"
@@ -189,16 +190,7 @@ const LaunchesTable: React.FC = () => {
 
                       <td className="px-6 align-middle ">{launch.location}</td>
 
-                      <td className="px-6 align-middle ">
-                        {/* {launch.patch && (
-                  <img
-                    src={launch.patch}
-                    alt={`${launch.mission} patch`}
-                    className="w-8 h-8 mr-2 object-contain"
-                  />
-                )} */}
-                        {launch.mission}
-                      </td>
+                      <td className="px-6 align-middle ">{launch.mission}</td>
 
                       <td className="px-6 align-middle ">
                         {launch.orbit ?? "LEO"}

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { ReactElement } from "react";
 import { useState, useEffect } from "react";
 import { Launch, Rocket, Launchpad, Payload } from "../types/spacex";
 import { format, parseISO } from "date-fns";
@@ -8,7 +8,7 @@ import { Loader } from "lucide-react";
 
 interface LaunchDetailProps {
   launchId?: string;
-  children: any;
+  children: ReactElement<HTMLButtonElement>;
 }
 
 interface LaunchDetails {
@@ -67,7 +67,7 @@ const LaunchDetail: React.FC<LaunchDetailProps> = ({ launchId, children }) => {
     };
 
     fetchData();
-  }, [launchId !== ""]);
+  }, [launchId]);
 
   if (!data)
     return (

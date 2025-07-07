@@ -1,6 +1,6 @@
 "uce client";
 
-import { useState } from "react";
+import React, { ReactElement, useState } from "react";
 import {
   format,
   addMonths,
@@ -12,30 +12,21 @@ import {
   eachDayOfInterval,
   isSameMonth,
   isSameDay,
-  addDays,
-  subDays,
   isWithinInterval,
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { filterOptions } from "@/utils/dateUtils";
+import { TimeRangeOption } from "@/types/spacex";
 
 type DateRange = {
   start: Date;
   end: Date;
 };
 
-type TimeRangeOption =
-  | "Past Week"
-  | "Past Month"
-  | "Past 3 Months"
-  | "Past 6 Months"
-  | "Past Year"
-  | "Past 10 Years";
-
 interface TimeRangePopupProps {
   onSelect: (option: TimeRangeOption) => void;
   currentSelection: TimeRangeOption;
-  children?: any;
+  children?: ReactElement<HTMLButtonElement>;
 }
 
 const DateRangeFilter = ({

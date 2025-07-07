@@ -97,6 +97,14 @@ export interface PopupProps {
     currentSelection: LaunchCategory;
 }
 
+export type TimeRangeOption =
+    | "Past Week"
+    | "Past Month"
+    | "Past 3 Months"
+    | "Past 6 Months"
+    | "Past Year"
+    | "Past 10 Years";
+
 export type LaunchCategory = 'all' | 'upcoming' | 'successful' | 'failed';
 
 export const tableHeadings = [
