@@ -60,7 +60,7 @@ const useLaunches = () => {
             }
 
             // Fetch launches with pagination
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SPACEX_API}/query`, {
+            const response = await fetch(`https://api.spacexdata.com/v5/launches/query`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
